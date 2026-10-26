@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&family=Outfit:wght@300;400;500;600&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Noto Serif KR', serif;
+  --font-sans: 'Outfit', 'Noto Serif KR', system-ui, sans-serif;
+  --color-ink: #0b0a09;
+  --color-panel: #151311;
+  --color-line: rgba(244, 236, 224, 0.12);
+  --color-bone: #f1e9dc;
+  --color-dim: #a39a8c;
+  --color-ember: #e0a458;
+}
+
+@layer base {
+  html {
+    background: var(--color-ink);
+    scrollbar-width: none;
+  }
+  body {
+    background: var(--color-ink);
+    color: var(--color-bone);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: var(--color-ember);
+    color: var(--color-ink);
+  }
+  button,
+  a {
+    cursor: pointer;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ember);
+    outline-offset: 3px;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.fade-up {
+  animation: fade-up 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.fade-in {
+  animation: fade-in 0.4s ease both;
+}
+.grain {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 3px 3px;
+}

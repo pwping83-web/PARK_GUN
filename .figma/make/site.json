@@ -1,0 +1,12 @@
+{
+  "title": "박건 PARK GUN | 배우 프로필",
+  "language": "ko",
+  "description": "연기 영상을 바로 확인하고 출연 이력과 연락처를 볼 수 있는 박건의 배우 프로필 사이트로, 캐스팅 관계자에게 빠른 검토를 제공합니다.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
