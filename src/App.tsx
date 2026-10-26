@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
-const PHONE = '010-1234-5678'
-const EMAIL = 'parkgun.actor@gmail.com'
+const PHONE = '010-4639-2673'
+const EMAIL = 'tseizou@naver.com'
 
 const VIDEOS = [
   {
@@ -45,7 +45,7 @@ function ContactButtons() {
         전화 {PHONE}
       </a>
       <a href={`mailto:${EMAIL}`} className={`${base} border border-line text-bone hover:border-ember hover:text-ember`}>
-        이메일
+        이메일 {EMAIL}
       </a>
     </div>
   )
@@ -110,6 +110,7 @@ function Player({ video, onClose }: { video: (typeof VIDEOS)[number]; onClose: (
             autoPlay
             playsInline
             preload="metadata"
+            poster={video.img}
             controlsList="nodownload"
             onContextMenu={(e) => e.preventDefault()}
             className="max-h-full w-full max-w-5xl bg-black"
@@ -166,10 +167,7 @@ export default function App() {
           <p className="text-[11px] tracking-[0.4em] text-ember mb-6">ACTOR</p>
           <h1 className="font-display font-light text-6xl md:text-8xl leading-none">박건</h1>
           <p className="mt-3 tracking-[0.5em] text-dim text-sm md:text-lg">PARK GUN</p>
-          <p className="mt-10 text-lg md:text-xl text-bone/90">재연배우 · 범죄·사건 재현 전문</p>
-          <div className="mt-10">
-            <ContactButtons />
-          </div>
+          <p className="mt-10 text-lg md:text-xl text-bone/90">배우 · 모든 장르 연기 가능</p>
         </div>
       </header>
 
@@ -201,11 +199,7 @@ export default function App() {
             )
           })}
         </ul>
-        <div className="mt-20 md:flex items-end justify-between gap-8">
-          <div className="mb-8 md:mb-0">
-            <p className="font-display text-3xl font-light">박건</p>
-            <p className="text-xs tracking-[0.4em] text-dim mt-1">PARK GUN</p>
-          </div>
+        <div className="mt-16">
           <ContactButtons />
         </div>
       </footer>

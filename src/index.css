@@ -1,9 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&family=Outfit:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Outfit:wght@300;400;500;600&display=swap');
 @import 'tailwindcss';
 
 @theme {
-  --font-display: 'Noto Serif KR', serif;
-  --font-sans: 'Outfit', 'Noto Serif KR', system-ui, sans-serif;
+  --font-display: 'Outfit', 'Noto Sans KR', system-ui, sans-serif;
+  --font-sans: 'Outfit', 'Noto Sans KR', system-ui, sans-serif;
   --color-ink: #0b0a09;
   --color-panel: #151311;
   --color-line: rgba(244, 236, 224, 0.12);
