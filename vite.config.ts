@@ -5,7 +5,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import siteConfiguration from './.figma/make/site.json'
-import { signVideo } from './api/_lib/sign'
+import { signVideo, signUpload } from './api/_lib/sign'
 
 
 // Vite config — https://vitejs.dev/config/
@@ -452,15 +452,30 @@ function figmaLinkedPackageSourcemaps(): Plugin {
   }
 }
 
-/** 로컬 개발용: Vercel의 /api/video 함수와 같은 동작을 vite 개발 서버에서 흉내 냅니다. */
+/** 로컬 개발용: Vercel의 /api/video, /api/upload 함수와 같은 동작을 vite 개발 서버에서 흉내 냅니다. */
 function devVideoApi(env: Record<string, string>): Plugin {
   return {
     name: 'dev-video-api',
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const u = new URL(req.url ?? '', 'http://localhost')
-        if (u.pathname !== '/api/video') return next()
-        const out = await signVideo(u.searchParams.get('id') ?? '', env)
+        if (u.pathname !== '/api/video' && u.pathname !== '/api/upload') return next()
+
+        let out: { status: number; body: unknown }
+        if (u.pathname === '/api/video') {
+          out = await signVideo(u.searchParams.get('id') ?? '', env)
+        } else {
+          let raw = ''
+          for await (const chunk of req) raw += chunk
+          let id = ''
+          try {
+            id = String(JSON.parse(raw || '{}').id ?? '')
+          } catch {
+            /* 본문이 비어 있으면 id 없음으로 처리 */
+          }
+          const key = req.headers['x-admin-key']
+          out = await signUpload(id, Array.isArray(key) ? key[0] : key, env)
+        }
         res.statusCode = out.status
         res.setHeader('Content-Type', 'application/json')
         res.setHeader('Cache-Control', 'no-store')

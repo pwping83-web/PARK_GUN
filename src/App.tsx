@@ -6,32 +6,29 @@ const EMAIL = 'parkgun.actor@gmail.com'
 const VIDEOS = [
   {
     id: 1,
-    title: '그날의 증언',
-    role: '용의자 김도현 역',
-    channel: 'KBS2',
-    length: '3:02',
-    seconds: 182,
-    img: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1600&h=900&fit=crop&auto=format',
+    title: '히든카드',
+    role: '변호사 남편 역',
+    channel: 'SBS',
+    length: '1:49',
+    img: '/thumbs/video-1.jpg',
   },
   {
     id: 2,
-    title: '침묵의 골목',
-    role: '형사 이민재 역',
-    channel: 'SBS',
-    length: '2:54',
-    seconds: 174,
-    img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=1600&h=900&fit=crop&auto=format',
+    title: '굿모닝 대한민국 · 사건의 재구성',
+    role: '첫사랑 남훈 역',
+    channel: 'KBS',
+    length: '1:35',
+    img: '/thumbs/video-2.jpg',
   },
 ]
 
 const CREDITS = [
-  '그날의 증언 · KBS2',
-  '침묵의 골목 · SBS',
-  '사건의 재구성 · MBC',
-  '실화탐사 · SBS',
-  '그것이 알고 싶다 · SBS',
+  '히든카드 19회 · SBS',
+  '굿모닝 대한민국 사건의 재구성 · KBS',
+  '아이엠 닥터 33회 · 채널A',
+  '범죄의 재구성 · tvN 2008',
+  '오페라스타 · 2011',
 ]
-
 
 const Play = ({ className = '' }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
@@ -151,7 +148,7 @@ function VideoCard({ v, i, onOpen }: { v: (typeof VIDEOS)[number]; i: number; on
         <span className="text-xs tracking-[0.25em] text-ember shrink-0">{v.channel}</span>
       </div>
       <p className="mt-1 text-dim">
-        {v.role} <span className="mx-1 text-line">·</span> 약 3분
+        {v.role} <span className="mx-1 text-line">·</span> {v.length}
       </p>
     </button>
   )

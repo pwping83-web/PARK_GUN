@@ -5,6 +5,7 @@ export type SignEnv = {
   SUPABASE_URL?: string
   SUPABASE_SERVICE_ROLE_KEY?: string
   SUPABASE_VIDEO_BUCKET?: string
+  ADMIN_PASSWORD?: string
 }
 
 // 영상 id -> 버킷 안의 파일명. 영상을 올릴 때 이 이름으로 올립니다.
@@ -35,4 +36,32 @@ export async function signVideo(
   const data = (await res.json()) as { signedURL?: string }
   if (!data.signedURL) return { status: 500, body: { error: 'sign failed' } }
   return { status: 200, body: { url: `${base}/storage/v1${data.signedURL}` } }
+}
+
+// 관리자 화면에서 브라우저가 Supabase로 직접 올릴 수 있는 1회용 업로드 주소를 발급합니다.
+// (파일이 서버를 거치지 않으므로 Vercel의 요청 크기 제한과 무관합니다.)
+export async function signUpload(
+  id: string,
+  adminKey: string | undefined,
+  env: SignEnv,
+): Promise<{ status: number; body: { url?: string; error?: string } }> {
+  if (!env.ADMIN_PASSWORD || adminKey !== env.ADMIN_PASSWORD) {
+    return { status: 401, body: { error: 'unauthorized' } }
+  }
+  const file = VIDEO_FILES[id]
+  if (!file) return { status: 404, body: { error: 'not found' } }
+
+  const base = env.SUPABASE_URL?.replace(/\/$/, '')
+  const key = env.SUPABASE_SERVICE_ROLE_KEY
+  if (!base || !key) return { status: 500, body: { error: 'server not configured' } }
+  const bucket = env.SUPABASE_VIDEO_BUCKET || 'profile-videos'
+
+  const res = await fetch(`${base}/storage/v1/object/upload/sign/${bucket}/${file}`, {
+    method: 'POST',
+    headers: { apikey: key, Authorization: `Bearer ${key}`, 'x-upsert': 'true' },
+  })
+  if (!res.ok) return { status: 500, body: { error: 'sign failed' } }
+  const data = (await res.json()) as { url?: string }
+  if (!data.url) return { status: 500, body: { error: 'sign failed' } }
+  return { status: 200, body: { url: `${base}/storage/v1${data.url}` } }
 }
