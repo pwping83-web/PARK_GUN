@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const PHONE = '010-1234-5678'
 const EMAIL = 'parkgun.actor@gmail.com'
@@ -32,7 +32,6 @@ const CREDITS = [
   '그것이 알고 싶다 · SBS',
 ]
 
-const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
 
 const Play = ({ className = '' }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
@@ -56,23 +55,27 @@ function ContactButtons() {
 }
 
 function Player({ video, onClose }: { video: (typeof VIDEOS)[number]; onClose: () => void }) {
-  const [playing, setPlaying] = useState(true)
-  const [t, setT] = useState(0)
-  const root = useRef<HTMLDivElement>(null)
+  const [src, setSrc] = useState<string | null>(null)
+  const [failed, setFailed] = useState(false)
 
   useEffect(() => {
-    if (!playing) return
-    const id = setInterval(() => setT((x) => Math.min(video.seconds, x + 0.25)), 250)
-    return () => clearInterval(id)
-  }, [playing, video.seconds])
+    let cancelled = false
+    fetch(`/api/video?id=${video.id}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d: { url?: string }) => {
+        if (cancelled) return
+        if (d.url) setSrc(d.url)
+        else setFailed(true)
+      })
+      .catch(() => !cancelled && setFailed(true))
+    return () => {
+      cancelled = true
+    }
+  }, [video.id])
 
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !document.fullscreenElement) onClose()
-      if (e.key === ' ') {
-        e.preventDefault()
-        setPlaying((p) => !p)
-      }
     }
     document.body.style.overflow = 'hidden'
     window.addEventListener('keydown', k)
@@ -82,13 +85,8 @@ function Player({ video, onClose }: { video: (typeof VIDEOS)[number]; onClose: (
     }
   }, [onClose])
 
-  const toggleFs = () => {
-    if (document.fullscreenElement) document.exitFullscreen()
-    else root.current?.requestFullscreen?.()
-  }
-
   return (
-    <div ref={root} className="fixed inset-0 z-50 bg-black flex flex-col fade-in" role="dialog" aria-modal aria-label={video.title}>
+    <div className="fixed inset-0 z-50 bg-black flex flex-col fade-in" role="dialog" aria-modal aria-label={video.title}>
       <div className="flex items-center justify-between px-5 md:px-10 h-16 shrink-0">
         <div className="min-w-0">
           <p className="font-display truncate">{video.title}</p>
@@ -107,55 +105,23 @@ function Player({ video, onClose }: { video: (typeof VIDEOS)[number]; onClose: (
         </button>
       </div>
 
-      <div className="relative flex-1 min-h-0 grid place-items-center" onClick={() => setPlaying((p) => !p)}>
-        <img src={video.img} alt="" className={`absolute inset-0 size-full object-contain md:object-cover transition-opacity duration-500 ${playing ? 'opacity-90' : 'opacity-50'}`} />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/40" />
-        {!playing && (
-          <span className="relative size-20 rounded-full bg-bone/90 text-ink grid place-items-center">
-            <Play className="size-8 ml-1" />
-          </span>
+      <div className="flex-1 min-h-0 grid place-items-center px-0 md:px-10 pb-6">
+        {src ? (
+          <video
+            src={src}
+            controls
+            autoPlay
+            playsInline
+            preload="metadata"
+            controlsList="nodownload"
+            onContextMenu={(e) => e.preventDefault()}
+            className="max-h-full w-full max-w-5xl bg-black"
+          />
+        ) : failed ? (
+          <p className="text-dim text-center px-6">영상을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>
+        ) : (
+          <p className="text-dim">불러오는 중…</p>
         )}
-      </div>
-
-      <div className="shrink-0 px-5 md:px-10 pt-4 pb-6 bg-black">
-        <input
-          type="range"
-          min={0}
-          max={video.seconds}
-          step={0.25}
-          value={t}
-          onChange={(e) => setT(Number(e.target.value))}
-          aria-label="재생 위치"
-          className="w-full h-1 appearance-none rounded-full cursor-pointer accent-[#e0a458]"
-          style={{
-            background: `linear-gradient(to right, #e0a458 ${(t / video.seconds) * 100}%, rgba(244,236,224,.18) 0)`,
-          }}
-        />
-        <div className="mt-4 flex items-center gap-4 text-sm tabular-nums">
-          <button
-            onClick={() => setPlaying((p) => !p)}
-            aria-label={playing ? '일시정지' : '재생'}
-            className="size-11 grid place-items-center rounded-full bg-bone text-ink hover:bg-ember transition-colors"
-          >
-            {playing ? (
-              <svg viewBox="0 0 24 24" className="size-5" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1" /><rect x="14" y="5" width="4" height="14" rx="1" /></svg>
-            ) : (
-              <Play className="size-5 ml-0.5" />
-            )}
-          </button>
-          <span className="text-dim">
-            {fmt(t)} / {video.length}
-          </span>
-          <button
-            onClick={toggleFs}
-            aria-label="전체화면"
-            className="ml-auto size-11 grid place-items-center rounded-full border border-line hover:border-ember hover:text-ember transition-colors"
-          >
-            <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.6">
-              <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
-            </svg>
-          </button>
-        </div>
       </div>
     </div>
   )

@@ -28,6 +28,12 @@ pnpm preview    # 빌드 결과 확인
 - 색상과 글꼴: `src/index.css`
 - 탭 제목과 검색 노출 설정: `.figma/make/site.json` (검색엔진 노출은 꺼져 있음)
 
-## 현재 상태 (다음 작업)
+## 영상 연결 방식
 
-화면 디자인은 완성되어 있지만 영상 재생은 목업입니다. 재생 화면은 이미지와 가짜 재생바이며, 실제 영상 파일은 아직 연결되지 않았습니다. 다음 단계는 영상 2개를 Supabase Storage(비공개 버킷)에 올리고 플레이어를 실제 `<video>`로 교체하는 것입니다.
+영상 파일은 Supabase Storage의 비공개 버킷 `profile-videos`에 둡니다. 재생 버튼을 누르면 `/api/video?id=1` 이 1시간짜리 임시 주소를 발급하고, 그 주소로 재생합니다. 서비스 키는 서버에서만 쓰이고 브라우저에는 노출되지 않습니다.
+
+1. Supabase 대시보드 > Storage > `profile-videos` 에 영상을 `video-1.mp4`, `video-2.mp4` 이름으로 업로드합니다. (무료 플랜은 파일당 50MB 제한이라 H.264로 압축해 두세요.)
+2. Vercel 프로젝트 Settings > Environment Variables 에 `.env.example` 의 세 값을 넣고 재배포합니다. `SUPABASE_SERVICE_ROLE_KEY` 에는 Supabase의 secret 키를 넣습니다.
+3. 로컬에서 보려면 `.env.example` 을 `.env.local` 로 복사해 값을 채우고 `pnpm dev` 를 실행합니다.
+
+작품명, 배역, 방송사, 연락처 문구는 아직 시안용 임시값이니 `src/App.tsx` 에서 실제 내용으로 고치세요.

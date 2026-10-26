@@ -1,10 +1,11 @@
-import { defineConfig, type HtmlTagDescriptor, type Plugin } from 'vite'
+import { defineConfig, loadEnv, type HtmlTagDescriptor, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import fs from 'node:fs'
 import path from 'node:path'
 
 import siteConfiguration from './.figma/make/site.json'
+import { signVideo } from './api/_lib/sign'
 
 
 // Vite config — https://vitejs.dev/config/
@@ -22,6 +23,7 @@ export default defineConfig(({ mode }) => {
 react(),
       tailwindcss(),
       figmaSiteConfiguration(siteConfiguration),
+      devVideoApi(loadEnv(mode, process.cwd(), '')),
       figmaErrorOverlayReplay(),
       figmaReactRefreshBoundaryFallback(),
       figmaMakeKitPlugin({ storiesGlob: '/src/**/*.stories.{ts,tsx,js,jsx}' }),
@@ -446,6 +448,24 @@ function figmaLinkedPackageSourcemaps(): Plugin {
       })
       delete map.sourceRoot
       return { code: code.replace(sourceMappingUrl, ''), map }
+    },
+  }
+}
+
+/** 로컬 개발용: Vercel의 /api/video 함수와 같은 동작을 vite 개발 서버에서 흉내 냅니다. */
+function devVideoApi(env: Record<string, string>): Plugin {
+  return {
+    name: 'dev-video-api',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        const u = new URL(req.url ?? '', 'http://localhost')
+        if (u.pathname !== '/api/video') return next()
+        const out = await signVideo(u.searchParams.get('id') ?? '', env)
+        res.statusCode = out.status
+        res.setHeader('Content-Type', 'application/json')
+        res.setHeader('Cache-Control', 'no-store')
+        res.end(JSON.stringify(out.body))
+      })
     },
   }
 }
