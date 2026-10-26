@@ -167,7 +167,7 @@ export default function App() {
           <p className="text-[11px] tracking-[0.4em] text-ember mb-6">ACTOR</p>
           <h1 className="font-display font-light text-6xl md:text-8xl leading-none">박건</h1>
           <p className="mt-3 tracking-[0.5em] text-dim text-sm md:text-lg">PARK GUN</p>
-          <p className="mt-10 text-lg md:text-xl text-bone/90">배우 · 모든 장르 연기 가능</p>
+          <p className="mt-10 text-lg md:text-xl text-bone/90">83년 · 180cm · 82kg · 서울</p>
         </div>
       </header>
 
